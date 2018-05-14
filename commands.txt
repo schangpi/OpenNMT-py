@@ -1,3 +1,54 @@
 # OpenNMT commands
 
-python train.py -data data/demo -save_model demo-model -gpuid 1
+# Demo
+
+## Preprocess
+python preprocess.py -train_src data/src-train.txt -train_tgt data/tgt-train.txt -valid_src data/src-val.txt -valid_tgt data/tgt-val.txt -save_data data/demo
+head -n 3 data/src-train.txt
+
+## Train
+time python train.py -data data/demo -save_model demo-model -gpuid 1
+real    9m59.631s
+user    5m56.364s
+sys     4m3.296s
+
+# Translate
+time python translate.py -model demo-model_acc_16.84_ppl_877.72_e13.pt -src data/src-test.txt -output pred.txt -replace_unk -verbose
+real    8m27.033s
+user    25m41.576s
+sys     0m6.404s
+
+# Example: Multi-modal translation
+
+## Data
+mkdir -p data/multi30k
+wget http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/training.tar.gz &&  tar -xf training.tar.gz -C data/multi30k && rm training.tar.gz
+wget http://www.quest.dcs.shef.ac.uk/wmt16_files_mmt/validation.tar.gz && tar -xf validation.tar.gz -C data/multi30k && rm validation.tar.gz
+wget http://www.quest.dcs.shef.ac.uk/wmt17_files_mmt/mmt_task1_test2016.tar.gz && tar -xf mmt_task1_test2016.tar.gz -C data/multi30k && rm mmt_task1_test2016.tar.gz
+
+## Preprocess
+for l in en de; do for f in data/multi30k/*.$l; do if [[ "$f" != *"test"* ]]; then sed -i "$ d" $f; fi;  done; done
+for l in en de; do for f in data/multi30k/*.$l; do perl tools/tokenizer.perl -a -no-escape -l $l -q  < $f > $f.atok; done; done
+python preprocess.py -train_src data/multi30k/train.en.atok -train_tgt data/multi30k/train.de.atok -valid_src data/multi30k/val.en.atok -valid_tgt data/multi30k/val.de.atok -save_data data/multi30k.atok.low -lower
+
+## Train
+time python train.py -data data/multi30k.atok.low -save_model multi30k_model -gpuid 1
+real    10m24.922s
+user    6m13.896s
+sys     4m11.172s
+
+## Translate
+time python translate.py -gpu 0 -model multi30k_model_*_e13.pt -src data/multi30k/test2016.en.atok -tgt data/multi30k/test2016.de.atok -replace_unk -verbose -output multi30k.test2016.pred.atok
+real    0m26.466s
+user    0m19.508s
+sys     0m6.912s
+
+## Evaluate
+perl tools/multi-bleu.perl data/multi30k/test2016.de.atok < multi30k.test2016.pred.atok
+
+
+# News commentary
+
+mkdir -p data/newscom
+wget http://data.statmt.org/wmt16/translation-task/news-commentary-v11.de.gz && tar -xf training.tar.gz -C data/multi30k && rm training.tar.gz
+
