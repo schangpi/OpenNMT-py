@@ -1,5 +1,81 @@
 # OpenNMT commands
 
+Command to train English to German a model with transformers
+python  train.py -data /tmp/de2/data -save_model /tmp/extra -gpuid 1 \
+        -layers 6 -rnn_size 512 -word_vec_size 512   \
+        -encoder_type transformer -decoder_type transformer -position_encoding \
+        -epochs 50  -max_generator_batches 32 -dropout 0.1 \
+        -batch_size 4096 -batch_type tokens -normalization tokens  -accum_count 4 \
+        -optim adam -adam_beta2 0.998 -decay_method noam -warmup_steps 8000 -learning_rate 2 \
+        -max_grad_norm 0 -param_init 0  -param_init_glorot \
+        -label_smoothing 0.1  
+
+perl tools/multi-bleu.perl data/tgt-val.txt < data/demoru_src-val-g.txt
+perl tools/multi-bleu.perl data/tgt-val.txt < data/demo_src-val-g.txt
+
+schangpi@gpulaforge:~/OpenNMT-py$ perl tools/multi-bleu.perl data/tgt-val.txt < data/demoru_src-val-g.txt
+BLEU = 0.60, 20.6/1.9/0.2/0.0 (BP=0.885, ratio=0.891, hyp_len=63833, ref_len=71666)
+schangpi@gpulaforge:~/OpenNMT-py$ perl tools/multi-bleu.perl data/tgt-val.txt < data/demo_src-val-g.txt
+BLEU = 0.60, 20.6/1.9/0.2/0.0 (BP=0.885, ratio=0.891, hyp_len=63833, ref_len=71666)
+		
+time python translate.py -gpu 0 -batch_size 256 -model demo-model_acc_16.84_ppl_877.72_e13.pt -src data/src-val.txt -output data/demoru_src-val-g.txt -tgt data/tgt-val.txt -report_bleu -replace_unk -verbose 		
+PRED AVG SCORE: -2.1605, PRED PPL: 8.6759
+GOLD AVG SCORE: -6.7913, GOLD PPL: 890.0793
+real    3m47.554s
+user    2m8.884s
+sys     1m38.536s
+
+time python translate.py -gpu 0 -batch_size 256 -model demo-model_acc_16.84_ppl_877.72_e13.pt -src data/src-val.txt -output data/demo_src-val-g.txt -tgt data/tgt-val.txt -report_bleu -verbose 		
+PRED AVG SCORE: -2.1605, PRED PPL: 8.6759
+GOLD AVG SCORE: -6.7913, GOLD PPL: 890.0793
+real    3m47.751s
+user    2m8.312s
+sys     1m39.280s
+
+
+German-to-English
+/data/sentence/iwslt-brnn2.s131_acc_62.71_ppl_7.74_e20.pt
+
+Englist-to-German
+/data/sentence/averaged-10-epoch.pt
+
+perl tools/multi-bleu.perl data/tgt-val.txt < data/opennmtptru_src-val-g.txt
+perl tools/multi-bleu.perl data/tgt-val.txt < data/opennmtpt_src-val-g.txt
+perl tools/multi-bleu.perl data/src-val.txt < data/opennmtptru_src-val-ge.txt
+perl tools/multi-bleu.perl data/src-val.txt < data/opennmtpt_src-val-ge.txt
+
+time python translate.py -gpu 0 -batch_size 64 -model /data/sentence/averaged-10-epoch.pt -src data/src-val.txt -output data/opennmtptru_src-val-g.txt -tgt data/tgt-val.txt -report_bleu -replace_unk -verbose
+PRED AVG SCORE: -1.5222, PRED PPL: 4.5825
+GOLD AVG SCORE: -10.2981, GOLD PPL: 29674.8150
+real    5m13.654s
+user    2m45.340s
+sys     2m28.472s
+
+
+time python translate.py -gpu 0 -batch_size 64 -model /data/sentence/averaged-10-epoch.pt -src data/src-val.txt -output data/opennmtpt_src-val-g.txt -tgt data/tgt-val.txt -report_bleu -verbose
+PRED AVG SCORE: -1.5222, PRED PPL: 4.5825
+GOLD AVG SCORE: -10.2981, GOLD PPL: 29674.8150
+real    5m19.471s
+user    2m45.024s
+sys     2m34.628s
+
+time python translate.py -gpu 0 -batch_size 64 -model /data/sentence/iwslt-brnn2.s131_acc_62.71_ppl_7.74_e20.pt -src data/opennmtptru_src-val-g.txt -output data/opennmtptru_src-val-ge.txt -tgt data/src-val.txt -report_bleu -replace_unk -verbose
+PRED AVG SCORE: -0.3585, PRED PPL: 1.4312
+GOLD AVG SCORE: -6.8588, GOLD PPL: 952.2408
+real    1m56.576s
+user    1m15.056s
+sys     0m40.084s
+
+time python translate.py -gpu 0 -batch_size 64 -model /data/sentence/iwslt-brnn2.s131_acc_62.71_ppl_7.74_e20.pt -src data/opennmtpt_src-val-g.txt -output data/opennmtpt_src-val-ge.txt -tgt data/src-val.txt -report_bleu -verbose
+
+
+
+time python translate.py -gpu 0 -batch_size 64 -model /data/sentence/averaged-10-epoch.pt -src data/opennmtptru_src-val-ge.txt -output data/opennmtptru_src-val-geg.txt -tgt data/tgt-val.txt -report_bleu -replace_unk -verbose
+
+time python translate.py -gpu 0 -batch_size 64 -model /data/sentence/iwslt-brnn2.s131_acc_62.71_ppl_7.74_e20.pt -src data/opennmtptru_src-val-geg.txt -output data/opennmtptru_src-val-gege.txt -tgt data/src-val.txt -report_bleu -replace_unk -verbose
+
+
+
 # Demo
 
 ## Preprocess
