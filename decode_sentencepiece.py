@@ -11,4 +11,4 @@ sp.Load(sys.argv[1])
 outfile = codecs.open(sys.argv[3], "w", "utf-8")
 with codecs.open(sys.argv[2], "r", "utf-8") as input_file:
     for i, line in enumerate(input_file):
-        outfile.write(' '.join(sp.DecodePieces(line.split())))
+        outfile.write(sp.DecodePieces(line.split()))
