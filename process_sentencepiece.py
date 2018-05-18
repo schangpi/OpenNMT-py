@@ -1,6 +1,6 @@
 # sp.Load("/data/sentence/opennmt_pretrained/sentencepiece.model")
 # python process_sentencepiece.py /data/sentence/opennmt_pretrained/sentencepiece.model data/src-val.txt data/srcp-val.txt
-
+# python process_sentencepiece.py /data/sentence/opennmt_pretrained/sentencepiece.model data/tgt-val.txt data/tgtp-val.txt
 
 # sp.EncodeAsIds("This is a test")
 # sp.DecodePieces(['\xe2\x96\x81This', '\xe2\x96\x81is', '\xe2\x96\x81a', '\xe2\x96\x81', 't', 'est'])
